@@ -25,6 +25,9 @@ use Parser;
 use PPFrame;
 
 class InlineSVG {
+	/** @var Sanitizer $sanitizer An instance of Sanitizer. */
+	private static $sanitizer;
+
 	/**
 	 * @param string $input SVG tag contents.
 	 * @param array $args SVG tag attributes.
@@ -46,16 +49,22 @@ class InlineSVG {
 		}
 
 		// Sanitize SVG with enshrined/svg-sanitize:
-		$sanitizer = new Sanitizer();
-		$sanitized = $sanitizer->sanitize( $svg );
+		if ( !self::$sanitizer ) {
+			self::$sanitizer = new Sanitizer();
+		}
+		self::$sanitizer->removeRemoteReferences( true );
+		$sanitized = self::$sanitizer->sanitize( $svg );
+		$issues = self::$sanitizer->getXmlIssues();
 
 		// Return the sanitized SVG or an error message:
 		if ( $sanitized ) {
 			return [ $sanitized, 'markerType' => 'nowiki' ];
 		} else {
-			return [
-				'<span class="error">' . wfMessage( 'inlinesvg-error' )->inContentLanguage()->escaped() . '</span>'
-			];
+			$message = wfMessage( 'inlinesvg-error' )->inContentLanguage()->escaped();
+			if ( $issues ) {
+				$message .= '. ' . implode( ', ', $issues );
+			}
+			return [ '<span class="error">' . $message . '</span>' ];
 		}
 	}
 }
