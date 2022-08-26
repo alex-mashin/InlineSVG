@@ -34,7 +34,7 @@ class InlineSVG {
 	 */
 	public static function renderSVG( string $input, array $args, Parser $parser, PPFrame $frame ): array {
 		// Remove the <?xml ...? > tag:
-		$svg = preg_replace( '/^\s*<\?xml\s+version\s*=\s*"1\.0"\s*encoding\s*=\s*"UTF-8"\?>/i', '', $input );
+		$svg = preg_replace( '/^(\s*<\?xml\s+version\s*=\s*"1\.0"\s*encoding\s*=\s*"UTF-8"\?>)+/i', '', $input );
 
 		// Rebuild the <svg> opening tag, if necessary.
 		if ( !preg_match( '/^\s*<\?xml\s+version\s*=\s*"1\.0"\s*encoding\s*=\s*"UTF-8"\?>\s*<svg[^>]*>/is', $svg ) ) {
