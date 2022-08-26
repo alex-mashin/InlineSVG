@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"Alexander Mashin"
+		]
+	},
+	"inlinesvg-desc": "{{desc|name=Inline SCG|url=}}",
+	"inlinesvg-error": "Message shown when SVG sanitisation fails"
+}

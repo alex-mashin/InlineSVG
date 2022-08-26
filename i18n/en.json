@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"Alexander Mashin"
+		]
+	},
+	"inlinesvg-desc": "This extension renders sanitized SVG",
+	"inlinesvg-error": "SVG sanitisation failed"
+}

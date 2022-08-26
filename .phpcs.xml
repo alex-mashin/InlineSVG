@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki" />
+	<file>.</file>
+	<exclude-pattern>vendor</exclude-pattern>
+	<!-- RedundantVarName is currently too sensitive, incompatible with default Doxygen. -->
+	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
+		<exclude name="MediaWiki.Commenting.RedundantVarName.Found"/>
+		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment"/>
+	</rule>
+</ruleset>

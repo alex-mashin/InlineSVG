@@ -1,0 +1,40 @@
+{
+	"name": "Inline SVG",
+	"author": [
+		"Alexander Mashin"
+	],
+	"url": "https://traditio.wiki/Inline_SVG",
+	"descriptionmsg": "inlinesvg-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "tag",
+	"requires": {
+		"MediaWiki": ">= 1.35.0"
+	},
+	"load_composer_autoloader": true,
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\InlineSVG\\": "src/",
+		"enshrined\\svgSanitize\\Sanitizer": "vendor/enshrined/svg-sanitize"
+	},
+	"config": {
+		"InlineSVG": {
+			"description": "Enable the feature.",
+			"value": true
+		}
+	},
+	"HookHandlers": {
+		"InlineSVGHooks": {
+			"class": "MediaWiki\\Extension\\InlineSVG\\Hooks"
+		}
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [
+			"InlineSVGHooks"
+		]
+	},
+	"MessagesDirs": {
+		"InlineSVG": [
+			"i18n"
+		]
+	},
+	"manifest_version": 2
+}
