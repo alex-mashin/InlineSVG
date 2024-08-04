@@ -6,7 +6,7 @@
 	"url": "https://traditio.wiki/Inline_SVG",
 	"descriptionmsg": "inlinesvg-desc",
 	"license-name": "GPL-2.0-or-later",
-	"type": "tag",
+	"type": "parserhook",
 	"requires": {
 		"MediaWiki": ">= 1.35.0",
 		"platform": {
