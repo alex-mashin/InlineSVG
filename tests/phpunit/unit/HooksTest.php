@@ -24,7 +24,7 @@ use MediaWiki\Extension\InlineSVG\Hooks;
 use Parser;
 
 /**
- * @coversDefaultClass Hooks
+ * @coversDefaultClass \MediaWiki\Extension\InlineSVG\Hooks
  */
 class HooksTest extends \MediaWikiUnitTestCase {
 	/** @var Parser $parserMock A mock Parser object. */

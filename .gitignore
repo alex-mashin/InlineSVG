@@ -1,4 +1,10 @@
-/composer.lock
 /vendor
+/.phpcs.cache
 /node_modules
 .eslintcache
+.opencode
+.cortexkit
+node_modules
+.npm
+.omo
+.bun

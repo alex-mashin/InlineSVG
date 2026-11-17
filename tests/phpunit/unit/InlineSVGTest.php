@@ -25,24 +25,6 @@ use Parser;
 use PPFrame;
 
 class InlineSVGTest extends MediaWikiUnitTestCase {
-	/** @var Parser $parserMock */
-	private $parserMock;
-	/** @var PPFrame $frameMock */
-	private $frameMock;
-
-	/**
-	 * @return void
-	 */
-	protected function setUp(): void {
-		$this->parserMock = $this->getMockBuilder( Parser::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$this->frameMock = $this->getMockBuilder( PPFrame::class )
-			->disableOriginalConstructor()
-			->getMock();
-		parent::setUp();
-	}
-
 	/**
 	 * Data provider to test InlineSVGTest::renderSVG().
 	 * @return array
@@ -61,12 +43,43 @@ class InlineSVGTest extends MediaWikiUnitTestCase {
 					'width' => '900', 'height' => '600'
 				],
 				<<<'CASE_1_EXPECTED'
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 6" width="900" height="600">
-					<rect fill="#fff" width="9" height="3"/>
-					<rect fill="#d52b1e" y="3" width="9" height="3"/>
-					<rect fill="#0039a6" y="2" width="9" height="2"/>
-				</svg>
-				CASE_1_EXPECTED,
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 6" width="900" height="600">
+						<rect fill="#fff" width="9" height="3"/>
+						<rect fill="#d52b1e" y="3" width="9" height="3"/>
+						<rect fill="#0039a6" y="2" width="9" height="2"/>
+					</svg>
+					CASE_1_EXPECTED,
+			],
+			[
+				// Attribute values must be escaped when the <svg> tag is rebuilt (D3):
+				<<<'CASE_2_INPUT'
+					<rect width="10" height="10"/>
+				CASE_2_INPUT,
+				[
+					'data-title' => 'A "quoted" title'
+				],
+				<<<'CASE_2_EXPECTED'
+					<svg data-title="A &quot;quoted&quot; title">
+						<rect width="10" height="10"/>
+					</svg>
+					CASE_2_EXPECTED,
+			],
+			[
+				// Any leading XML declaration must be stripped, not only the narrow
+				// version/encoding form (REVIEW.md D15):
+				<<<'CASE_3_INPUT'
+					<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+					<rect width="10" height="10"/>
+				CASE_3_INPUT,
+				[
+					'width' => '10',
+					'height' => '10'
+				],
+				<<<'CASE_3_EXPECTED'
+					<svg width="10" height="10">
+						<rect width="10" height="10"/>
+						</svg>
+				CASE_3_EXPECTED,
 			]
 		];
 	}
@@ -81,8 +94,25 @@ class InlineSVGTest extends MediaWikiUnitTestCase {
 	 * @return void
 	 */
 	public function testRenderSVG( string $input, array $args, string $expected ): void {
-		$actual = InlineSVG::renderSVG( $input, $args, $this->parserMock, $this->frameMock );
-		$this->assertEquals( $expected, $actual );
+		$result = InlineSVG::renderSVG(
+			$input,
+			$args,
+			$this->createMock( Parser::class ),
+			$this->createMock( PPFrame::class )
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 0, $result );
+		$this->assertSame( 'nowiki', $result['markerType'] ?? null );
+
+		$normalize = static function ( string $xml ): string {
+			// Drop the XML declaration that Sanitizer::sanitize() may prepend
+			// (removeXMLTag() is set to true, this is a safety net), then collapse
+			// whitespace, so that the comparison is insensitive to indentation:
+			$xml = (string)preg_replace( '/^\s*<\?xml[^>]*\?>\s*/', '', $xml );
+			return trim( (string)preg_replace( '/\s+/', ' ', $xml ) );
+		};
+		$this->assertSame( $normalize( $expected ), $normalize( $result[0] ) );
 	}
 
 }

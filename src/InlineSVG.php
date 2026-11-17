@@ -36,14 +36,17 @@ class InlineSVG {
 	 * @return array The sanitized SVG tag.
 	 */
 	public static function renderSVG( string $input, array $args, Parser $parser, PPFrame $frame ): array {
-		// Remove the <?xml ...? > tag:
-		$svg = preg_replace( '/^(\s*<\?xml\s+version\s*=\s*"1\.0"\s*encoding\s*=\s*"UTF-8"\?>)+/i', '', $input );
+		// Remove any leading XML declaration (an opening `<` + `?xml` PI up to its
+		// closing PI marker), whatever its exact attributes (e.g. Inkscape's
+		// version/encoding/standalone trio), and an UTF-8 BOM, if any:
+		$svg = (string)preg_replace( '/^(?:\xEF\xBB\xBF)?\s*<\?xml\s.*?\?>\s*/s', '', $input );
 
-		// Rebuild the <svg> opening tag, if necessary.
-		if ( !preg_match( '/^\s*<\?xml\s+version\s*=\s*"1\.0"\s*encoding\s*=\s*"UTF-8"\?>\s*<svg[^>]*>/is', $svg ) ) {
+		// Rebuild the <svg> opening tag, unless the fragment already starts with one:
+		if ( !preg_match( '/^\s*<svg[^>]*>/is', $svg ) ) {
 			$assignments = [];
 			foreach ( $args as $attribute => $value ) {
-				$assignments[] = $attribute . '="' . $value . '"';
+				$assignments[] = htmlspecialchars( $attribute, ENT_QUOTES ) . '="'
+					. htmlspecialchars( $value, ENT_QUOTES ) . '"';
 			}
 			$svg = '<svg ' . implode( ' ', $assignments ) . '>' . $svg . '</svg>';
 		}
@@ -53,6 +56,8 @@ class InlineSVG {
 			self::$sanitizer = new Sanitizer();
 		}
 		self::$sanitizer->removeRemoteReferences( true );
+		// Don't prepend the XML declaration to the parser output:
+		self::$sanitizer->removeXMLTag( true );
 		$sanitized = self::$sanitizer->sanitize( $svg );
 		$issues = self::$sanitizer->getXmlIssues();
 
@@ -62,7 +67,10 @@ class InlineSVG {
 		} else {
 			$message = wfMessage( 'inlinesvg-error' )->inContentLanguage()->escaped();
 			if ( $issues ) {
-				$message .= '. ' . implode( ', ', $issues );
+				$details = array_map( static function ( $issueMessage ): string {
+					return htmlspecialchars( (string)$issueMessage, ENT_QUOTES );
+				}, array_column( $issues, 'message' ) );
+				$message .= '. ' . implode( ', ', $details );
 			}
 			return [ '<span class="error">' . $message . '</span>' ];
 		}

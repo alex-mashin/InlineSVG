@@ -34,6 +34,6 @@ class Hooks implements ParserFirstCallInitHook {
 	 * @return bool|void True or no return value to continue or false to abort
 	 */
 	public function onParserFirstCallInit( $parser ) {
-		$parser->setHook( 'svg', [ 'MediaWiki\Extension\InlineSVG\InlineSVG', 'renderSVG' ] );
+		$parser->setHook( 'svg', [ InlineSVG::class, 'renderSVG' ] );
 	}
 }

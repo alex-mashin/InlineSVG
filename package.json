@@ -1,5 +1,5 @@
 {
-	"name": "Inline SVG",
+	"name": "inlinesvg",
 	"private": true,
 	"scripts": {
 		"test": "grunt test"

@@ -2,7 +2,11 @@
 <ruleset>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki" />
 	<file>.</file>
+	<arg name="extensions" value="php"/>
 	<exclude-pattern>vendor</exclude-pattern>
+	<exclude-pattern type="relative">^node_modules</exclude-pattern>
+	<exclude-pattern type="relative">^\.opencode</exclude-pattern>
+	<exclude-pattern type="relative">^\.cortexkit</exclude-pattern>
 	<!-- RedundantVarName is currently too sensitive, incompatible with default Doxygen. -->
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.Commenting.RedundantVarName.Found"/>
